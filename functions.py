@@ -214,3 +214,39 @@ def meanWght(lenArray, vArray):
         wghts.append(lenArray[i]/suma)
         mean = mean + vArray[i]*wghts[i]
     return mean
+
+# -*- coding: utf-8 -*-
+#   Imports
+import arcpy, functions
+
+#   To allow overwriting the outputs change the overwrite option to true.
+arcpy.env.overwriteOutput = True
+
+#   Inputs
+fc_bacis = 'C:/Users/cerni/Desktop/Univerzita Karlova/Geografie/Diplomka/data/silnicni_sit.gdb/silnicni_sit_test_multiple'
+fc_output = 'C:/Users/cerni/Desktop/Univerzita Karlova/Geografie/Diplomka/data/silnicni_sit.gdb'
+dem = 'C:/Users/cerni/Desktop/Univerzita Karlova/Geografie/Diplomka/data/silnicni_sit.gdb/dem'
+speedField = 'rychlost'
+inExField = 'intravilan'
+pnts_fc = fc_output + '/splitPnts'
+
+#   Defining variables
+exp = inExField + "= 0"
+koef = 0.01813
+
+# fc_bacis = arcpy.GetParameterAsText(0)
+# fc_output = arcpy.GetParameterAsText(1)
+# dem = arcpy.GetParameterAsText(2)
+# speedField = arcpy.GetParameterAsText(3)
+# inExField = arcpy.GetParameterAsText(4)
+
+#   Cursor for reading rows in line input
+fc_input = functions.editLines(fc_bacis,fc_output,dem)
+functions.splitPoints(exp, fc_input, fc_output, speedField, pnts_fc)
+
+finalLines = fc_output + '/finalLines'
+arcpy.SplitLineAtPoint_management(fc_input,pnts_fc,finalLines,"0.25 Meters")
+arcpy.AddField_management(finalLines, "ftSpeed", "FLOAT")
+arcpy.AddField_management(finalLines, "tfSpeed", "FLOAT")
+
+functions.addSpeeds(koef,finalLines)
