@@ -104,6 +104,13 @@ def splitPoints( exp, fc_input, fc_output, speedField, pnts_fc):
             xy = (pnt.X, pnt.Y)
             cursor.insertRow([xy])
 
+def addAttributes(finalLines):
+    arcpy.AddField_management(finalLines, "ftSpeed", "FLOAT")
+    arcpy.AddField_management(finalLines, "tfSpeed", "FLOAT")
+    arcpy.AddField_management(finalLines, "ftTime", "FLOAT")
+    arcpy.AddField_management(finalLines, "tfTime", "FLOAT")
+    arcpy.AddField_management(finalLines, "avgTime", "FLOAT")
+    
 def addSpeeds(koef, finalLines):
     with arcpy.da.UpdateCursor(finalLines, ["ftSpeed", "tfSpeed", "rychlost", "intravilan", "SHAPE@"]) as cursor:
         #   Reads the shape of feature class
