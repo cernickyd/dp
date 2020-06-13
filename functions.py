@@ -3,13 +3,22 @@
 import arcpy
 from math import sqrt, acos, pi
 
-def editLines (fc_bacis,fc_output,dem):
+def editLines (fc_bacis,fc_output,dem,inExField):
+    #   Edits lines and prepares them for next step
+    fc_extra = fc_output + "/extra"
+    fc_intra = fc_output + "/intra"
+    fc_merge = fc_output + "/merge"
     fc_dissolve = fc_output + "/dissolve"
     fc_SpatialJoin = fc_output + "/SpatialJoin"
-    fc_input = fc_output + "/dem"
-    arcpy.Dissolve_management(fc_bacis, fc_dissolve, "", "", "SINGLE_PART", "UNSPLIT_LINES")
+    fc_input = fc_output + "/ready_lines"
+    expression1 = inExField + "=1"
+    expression2 = inExField + "=0"
+    arcpy.FeatureClassToFeatureClass_conversion(fc_bacis, fc_output, "intra", expression1)
+    arcpy.FeatureClassToFeatureClass_conversion(fc_bacis, fc_output, "extra", expression2)
+    arcpy.Dissolve_management(fc_extra, fc_dissolve, "", "", "SINGLE_PART", "UNSPLIT_LINES")
     arcpy.SpatialJoin_analysis(fc_dissolve, fc_bacis, fc_SpatialJoin, "JOIN_ONE_TO_ONE", "", "", "INTERSECT")
-    arcpy.InterpolateShape_3d(dem,fc_bacis,fc_input)
+    arcpy.Merge_management([fc_SpatialJoin, fc_intra], fc_merge)
+    arcpy.InterpolateShape_3d(dem, fc_merge, fc_input)
 
     return fc_input
 
