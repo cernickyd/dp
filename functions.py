@@ -221,7 +221,17 @@ def addSpeeds(koef, finalLines):
                 vArrayTF.clear()
                 vArrayFT.clear()
                 lenArray.clear()
-
+                
+def addTime(finalLines):
+    #   Uses curvature and elevation and adds average speeds into attribute table
+    with arcpy.da.UpdateCursor(finalLines, ["ftSpeed", "tfSpeed", "Shape_Length", "ftTime", "tfTime", "avgTime"]) as cursor:
+        #   Reads the shape of feature class
+        for row in cursor:
+            row[3] = (row[2] / row[0]) * 0.06
+            row[4] = (row[2] / row[1]) * 0.06
+            row[5] = (row[3] + row[4]) / 2
+            cursor.updateRow(row)
+            
 def meanWght(lenArray, vArray):
     wghts = []
     mean = 0
